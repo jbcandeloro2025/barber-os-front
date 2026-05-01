@@ -15,6 +15,8 @@ RUN \
 
 # Copiar código fonte e fazer build
 COPY . .
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 RUN \
   if [ -f pnpm-lock.yaml ]; then pnpm run build; \
   elif [ -f yarn.lock ]; then yarn build; \
