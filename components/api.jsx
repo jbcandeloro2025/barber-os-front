@@ -1,6 +1,7 @@
+import React from 'react';
 
 // Central API helper
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3333";
+const API_BASE = import.meta.env.VITE_API_URL || "https://saas-saas.xvpbl8.easypanel.host";
 
 const PROF_COLORS = ["#C5A47E","#3B82F6","#8B5CF6","#10B981","#F59E0B","#EF4444","#EC4899","#06B6D4"];
 
@@ -16,6 +17,7 @@ async function apiFetch(path, options = {}) {
   const token = getToken();
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -27,15 +29,20 @@ async function apiFetch(path, options = {}) {
   });
 
   if (res.status === 401) {
-    clearToken();
-    window.location.reload();
-    return;
+    console.error("401 Unauthorized em:", path);
+    if (!path.includes("/login")) {
+      console.warn("Sessão expirada. Em produção isso limparia o token e recarregaria.");
+      // clearToken();
+      // window.location.reload();
+    }
   }
 
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.message || `Erro ${res.status}`);
+    const errorMsg = data.message || `Erro ${res.status}`;
+    console.error(`Falha na API [${path}]:`, errorMsg, data);
+    throw new Error(errorMsg);
   }
 
   return data;

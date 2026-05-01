@@ -1,3 +1,4 @@
+import React from 'react';
 
 // UI Primitives — shared across all admin components
 

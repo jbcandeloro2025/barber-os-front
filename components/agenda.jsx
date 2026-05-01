@@ -54,13 +54,26 @@ const AgendaModal = ({ ag, onClose, onSave, clientes, servicos, profissionais, s
           <div>
             <label style={{fontSize:12,color:"var(--muted)",fontWeight:500,display:"block",marginBottom:6}}>Profissional</label>
             <Select value={form.professional_id} onChange={e=>set("professional_id",e.target.value)} style={{width:"100%"}}>
-              <option value="">Qualquer um</option>
+              <option value="">Selecionar profissional...</option>
               {profissionais.map(p=><option key={p.id} value={p.id}>{p.nome.split(" ")[0]}</option>)}
             </Select>
           </div>
           <div>
             <label style={{fontSize:12,color:"var(--muted)",fontWeight:500,display:"block",marginBottom:6}}>Horário</label>
-            <Input value={form.hora} onChange={e=>set("hora",e.target.value)} placeholder="09:00"/>
+            <Input 
+              value={form.hora} 
+              onChange={e => {
+                const val = e.target.value;
+                const formatted = val.replace(/\D/g, "").slice(0, 4);
+                if (formatted.length >= 3) {
+                  set("hora", formatted.slice(0, 2) + ":" + formatted.slice(2));
+                } else {
+                  set("hora", formatted);
+                }
+              }} 
+              placeholder="00:00"
+              maxLength={5}
+            />
           </div>
         </div>
         <div>
@@ -260,8 +273,8 @@ const Agenda = () => {
     filtered.filter(a => a.data === date && a.hora.startsWith(hour.split(":")[0]));
 
   const handleSave = async (form) => {
-    if (!form.client_id || !form.service_id || !form.hora || !form.data) {
-      alert("Preencha cliente, serviço e horário.");
+    if (!form.client_id || !form.service_id || !form.professional_id || !form.hora || !form.data) {
+      alert("Preencha todos os campos: Cliente, Serviço, Profissional e Horário.");
       return;
     }
     setSaving(true);

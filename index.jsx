@@ -1,5 +1,8 @@
-import './init-globals.js';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
+// Globals and Dependencies (Crucial for the existing codebase)
+import './init-globals.js';
 import './components/api.jsx';
 import './components/mock-data.jsx';
 import './components/ui-primitives.jsx';
@@ -13,4 +16,11 @@ import './components/inventory.jsx';
 import './components/finance.jsx';
 import './components/reports.jsx';
 import './components/notifications.jsx';
-import './components/admin-app.jsx';
+
+import MainApp from './main-app';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <MainApp />
+  </React.StrictMode>
+);

@@ -2,17 +2,27 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 window.React = React;
 window.ReactDOM = ReactDOM;
+import '../booking.css';
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 /* ─── API ───────────────────────────────────────────────────── */
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3333";
+const API_BASE = import.meta.env.VITE_API_URL || "https://saas-saas.xvpbl8.easypanel.host";
 // Shop ID — em produção viria de um subdomínio ou query param
-const SHOP_ID = new URLSearchParams(window.location.search).get("shop") || "";
+const getShopId = () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("shop")) return params.get("shop");
+  const pathParts = window.location.pathname.split('/');
+  // Se for /admin ou outros caminhos conhecidos, ignorar
+  if (pathParts[1] === "admin" || !pathParts[1]) return "";
+  return pathParts[1];
+};
+const SHOP_ID = getShopId();
 
 async function bookingFetch(path, options = {}) {
   const res = await fetch(`${API_BASE}/booking/${SHOP_ID}${path}`, {
     ...options,
+    credentials: 'include',
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
@@ -860,44 +870,46 @@ const App = () => {
   );
 
   return (
-    <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
-      {/* Top Nav Overlay */}
-      <div style={{position:"absolute",top:0,left:0,right:0,padding:"16px 20px",display:"flex",gap:24,zIndex:50,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(10px)",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
-         <div style={{display:"flex",alignItems:"center",gap:10,marginRight:"auto"}}>
-            <div style={{width:28,height:28,borderRadius:8,background:"var(--primary)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <Ic n="scissors" s={16} c="#000"/>
-            </div>
-         </div>
-        <button onClick={()=>setTab("agendar")}
-          style={{background:"transparent",border:"none",color:tab==="agendar"?"var(--primary)":"#fff",
-            fontSize:14,fontWeight:700,cursor:"pointer",padding:"4px 0",position:"relative",transition:"all 0.2s"}}>
-          Agendar
-          {tab==="agendar" && <div style={{position:"absolute",bottom:-4,left:0,right:0,height:2,background:"var(--primary)",borderRadius:2}}/>}
-        </button>
-        <button onClick={()=>setTab("historico")}
-          style={{background:"transparent",border:"none",color:tab==="historico"?"var(--primary)":"#fff",
-            fontSize:14,fontWeight:700,cursor:"pointer",padding:"4px 0",position:"relative",transition:"all 0.2s"}}>
-          Histórico
-          {tab==="historico" && <div style={{position:"absolute",bottom:-4,left:0,right:0,height:2,background:"var(--primary)",borderRadius:2}}/>}
+    <div className="booking-page">
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
+        {/* Top Nav Overlay */}
+        <div style={{position:"absolute",top:0,left:0,right:0,padding:"16px 20px",display:"flex",gap:24,zIndex:50,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(10px)",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+           <div style={{display:"flex",alignItems:"center",gap:10,marginRight:"auto"}}>
+              <div style={{width:28,height:28,borderRadius:8,background:"var(--primary)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <Ic n="scissors" s={16} c="#000"/>
+              </div>
+           </div>
+          <button onClick={()=>setTab("agendar")}
+            style={{background:"transparent",border:"none",color:tab==="agendar"?"var(--primary)":"#fff",
+              fontSize:14,fontWeight:700,cursor:"pointer",padding:"4px 0",position:"relative",transition:"all 0.2s"}}>
+            Agendar
+            {tab==="agendar" && <div style={{position:"absolute",bottom:-4,left:0,right:0,height:2,background:"var(--primary)",borderRadius:2}}/>}
+          </button>
+          <button onClick={()=>setTab("historico")}
+            style={{background:"transparent",border:"none",color:tab==="historico"?"var(--primary)":"#fff",
+              fontSize:14,fontWeight:700,cursor:"pointer",padding:"4px 0",position:"relative",transition:"all 0.2s"}}>
+            Histórico
+            {tab==="historico" && <div style={{position:"absolute",bottom:-4,left:0,right:0,height:2,background:"var(--primary)",borderRadius:2}}/>}
+          </button>
+        </div>
+  
+        {/* Content */}
+        <div className="scroll-y" style={{flex:1}}>
+          <Header />
+          {tab==="agendar" && <TabAgendar userPhone={userPhone} userData={userData} services={services} profs={profs}/>}
+          {tab==="historico" && <TabHistorico userData={userData}/>}
+        </div>
+  
+        {/* Logout float */}
+        <button onClick={handleLogout}
+          style={{position:"fixed",top:12,right:12,width:32,height:32,borderRadius:"50%",
+            background:"rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.1)",
+            display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",zIndex:100}}>
+          <Ic n="log-out" s={14} c="#fff"/>
         </button>
       </div>
-
-      {/* Content */}
-      <div className="scroll-y" style={{flex:1}}>
-        <Header />
-        {tab==="agendar" && <TabAgendar userPhone={userPhone} userData={userData} services={services} profs={profs}/>}
-        {tab==="historico" && <TabHistorico userData={userData}/>}
-      </div>
-
-      {/* Logout float */}
-      <button onClick={handleLogout}
-        style={{position:"fixed",top:12,right:12,width:32,height:32,borderRadius:"50%",
-          background:"rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.1)",
-          display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",zIndex:100}}>
-        <Ic n="log-out" s={14} c="#fff"/>
-      </button>
     </div>
   );
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+export default App;

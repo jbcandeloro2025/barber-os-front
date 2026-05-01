@@ -8,8 +8,9 @@ const Settings = () => {
   const [novoSrvOpen, setNovoSrvOpen] = React.useState(false);
   const [novoProfOpen, setNovoProfOpen] = React.useState(false);
   const [novoPlanOpen, setNovoPlanOpen] = React.useState(false);
-  const [crudSaving, setCrudSaving] = React.useState(false);
   const [crudError, setCrudError] = React.useState(null);
+  const [shopInfo, setShopInfo] = React.useState(null);
+  const [checkoutLoading, setCheckoutLoading] = React.useState(false);
   const [form, setForm] = React.useState({
     nome:"",
     slug:"",
@@ -18,6 +19,13 @@ const Settings = () => {
     descricao:"",
   });
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
+  
+  const slugify = (text) => {
+    return text.toString().toLowerCase().trim()
+      .replace(/\s+/g, '-')           // Espaços por -
+      .replace(/[^\w-]+/g, '')        // Remove caracteres especiais
+      .replace(/--+/g, '-');          // Remove múltiplos -
+  };
 
   const [servicos, setServicos] = React.useState([]);
   const [editSrv, setEditSrv] = React.useState(null);
@@ -48,9 +56,10 @@ const Settings = () => {
       setUsuarios(uData.users || []);
       if (shopData.shop) {
         const s = shopData.shop;
+        setShopInfo(s);
         setForm({
           nome: s.name || "",
-          slug: "",
+          slug: s.slug || "",
           whatsapp: s.config?.whatsapp || "",
           endereco: s.config?.endereco || "",
           descricao: s.config?.descricao || "",
@@ -75,6 +84,7 @@ const Settings = () => {
         method: "PATCH",
         body: JSON.stringify({
           name: form.nome,
+          slug: form.slug,
           config: {
             whatsapp: form.whatsapp,
             endereco: form.endereco,
@@ -109,6 +119,33 @@ const Settings = () => {
       setPerfilMsg({ type: "error", text: e.message || "Erro ao salvar perfil" });
     } finally {
       setPerfilSaving(false);
+    }
+  };
+
+  const handleStripeCheckout = async (priceId) => {
+    setCheckoutLoading(true);
+    try {
+      const data = await apiFetch("/subscriptions/checkout", {
+        method: "POST",
+        body: { priceId }
+      });
+      if (data.checkoutUrl) window.location.href = data.checkoutUrl;
+    } catch (e) {
+      alert(e.message || "Erro ao iniciar checkout");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleStripePortal = async () => {
+    setCheckoutLoading(true);
+    try {
+      const data = await apiFetch("/subscriptions/portal", { method: "POST" });
+      if (data.portalUrl) window.location.href = data.portalUrl;
+    } catch (e) {
+      alert(e.message || "Erro ao abrir portal de faturamento");
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -268,7 +305,7 @@ const Settings = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 {[
                   { k: "nome", label: "Nome do Estabelecimento", placeholder: "Ex: Barbearia Studio Rafael" },
-                  { k: "slug", label: "Slug de Agendamento", placeholder: "minha-barbearia", prefix: "barberos.app/" },
+                  { k: "slug", label: "Slug de Agendamento", placeholder: "minha-barbearia", prefix: (import.meta.env.VITE_BOOKING_BASE_URL || "barberos.app").replace(/^https?:\/\//, "") + "/" },
                   { k: "whatsapp", label: "WhatsApp", placeholder: "(11) 99999-9999" },
                   { k: "endereco", label: "Endereço completo", placeholder: "Rua, número — Bairro, Cidade" },
                 ].map(({ k, label, placeholder, prefix }) => (
@@ -276,12 +313,31 @@ const Settings = () => {
                     <label style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: 7 }}>{label}</label>
                     <div style={{ display: "flex", alignItems: "center" }}>
                       {prefix && <span style={{ padding: "9px 10px", background: "var(--surface)", border: "1px solid var(--border)", borderRight: "none", borderRadius: "8px 0 0 8px", fontSize: 12, color: "var(--muted2)" }}>{prefix}</span>}
-                      <input value={form[k]} onChange={e => set(k, e.target.value)} placeholder={placeholder}
+                      <input 
+                        value={form[k]} 
+                        onChange={e => {
+                          const val = e.target.value;
+                          set(k, val);
+                          if (k === "nome") set("slug", slugify(val));
+                        }} 
+                        placeholder={placeholder}
                         style={{ flex: 1, padding: "9px 12px", background: "var(--surface2)", border: "1px solid var(--border)",
                           borderRadius: prefix ? "0 8px 8px 0" : 8, color: "var(--text)", fontSize: 13, outline: "none", fontFamily: "inherit" }}
                         onFocus={e => e.target.style.borderColor = "#C5A47E"}
                         onBlur={e => e.target.style.borderColor = "var(--border)"} />
                     </div>
+                    {k === "slug" && form.slug && (
+                      <div style={{ marginTop: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                        <Icon name="external-link" size={12} color="#C5A47E" />
+                        <span style={{ color: "var(--muted)" }}>Link para clientes: </span>
+                        <a href={`${import.meta.env.VITE_BOOKING_BASE_URL || "https://barberos.app"}/${form.slug}`} target="_blank" rel="noreferrer" 
+                          style={{ color: "#C5A47E", fontWeight: 700, textDecoration: "none", borderBottom: "1px solid transparent" }}
+                          onMouseEnter={e => e.target.style.borderBottomColor = "#C5A47E" }
+                          onMouseLeave={e => e.target.style.borderBottomColor = "transparent" }>
+                          {(import.meta.env.VITE_BOOKING_BASE_URL || "barberos.app").replace(/^https?:\/\//, "")}/{form.slug}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div>
@@ -925,48 +981,49 @@ const Settings = () => {
             </div>
           )}
 
-          {tab === "assinatura" && (() => {
-            const nextBilling = new Date("2026-05-05");
-            const today = new Date();
-            const diffDays = Math.ceil((nextBilling - today) / (1000 * 60 * 60 * 24));
-            const needsRenewal = diffDays <= 5;
+            const nextBilling = new Date();
+            nextBilling.setMonth(nextBilling.getMonth() + 1);
+            
+            const status = shopInfo?.subscription_status || "TRIALING";
+            const isCanceled = status === "CANCELED";
+            const isTrial = status === "TRIALING";
+            const isActive = status === "ACTIVE";
 
             return (
               <div style={{ padding: "28px 32px" }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Minha Assinatura BarberOS</h2>
                 <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 24 }}>Gerencie seu plano de uso da plataforma e faturamento</p>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24, alignItems: "flex-start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gap: 24, alignItems: "flex-start" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <Card style={{ padding: 24, background: "linear-gradient(135deg, var(--surface2), var(--surface))", border: needsRenewal ? "1px solid #EF444466" : "1px solid var(--primary)33", position: "relative", overflow: "hidden" }}>
-                      {needsRenewal && (
-                        <div style={{ position: "absolute", top: 12, right: 12 }}>
-                          <Badge variant="warning">Vence em {diffDays} dias</Badge>
-                        </div>
-                      )}
+                    <Card style={{ padding: 24, background: "linear-gradient(135deg, var(--surface2), var(--surface))", border: isTrial ? "1px solid var(--primary)66" : "1px solid var(--border)", position: "relative", overflow: "hidden" }}>
                       
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
                         <div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                            <Badge variant="info">Plano Ativo</Badge>
-                            <span style={{ fontSize: 12, color: "var(--success)", fontWeight: 700 }}>● Pagamento em dia</span>
+                            <Badge variant={isActive ? "success" : isTrial ? "warning" : "danger"}>
+                              {isActive ? "Plano Ativo" : isTrial ? "Período de Teste" : "Assinatura Suspensa"}
+                            </Badge>
+                            {isActive && <span style={{ fontSize: 12, color: "var(--success)", fontWeight: 700 }}>● Pagamento em dia</span>}
                           </div>
                           <h3 style={{ fontSize: 24, fontWeight: 800 }}>BarberOS Pro</h3>
                           <p style={{ color: "var(--muted)", fontSize: 14 }}>Ciclo de faturamento mensal</p>
                         </div>
                         <div style={{ textAlign: "right" }}>
                           <div style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)" }}>R$ 149,90</div>
-                          <div style={{ fontSize: 12, color: "var(--muted)" }}>Próxima fatura: {nextBilling.toLocaleDateString('pt-BR')}</div>
+                          <div style={{ fontSize: 12, color: "var(--muted)" }}>{isActive ? `Próxima fatura: ${nextBilling.toLocaleDateString('pt-BR')}` : "Plano mensal padrão"}</div>
                         </div>
                       </div>
 
-                      {needsRenewal && (
-                        <div style={{ marginBottom: 24, padding: 16, background: "rgba(239,68,68,0.1)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      {(!isActive || isTrial) && (
+                        <div style={{ marginBottom: 24, padding: 16, background: "rgba(197,164,126,0.1)", borderRadius: 10, border: "1px solid rgba(197,164,126,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "#EF4444" }}>Sua assinatura vence em breve!</div>
-                            <div style={{ fontSize: 11, color: "var(--muted)" }}>Evite a suspensão dos serviços renovando agora.</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)" }}>{isTrial ? "Seu período de teste está ativo!" : "Sua assinatura não está ativa."}</div>
+                            <div style={{ fontSize: 11, color: "var(--muted)" }}>Profissionalize sua gestão com o plano Pro completo.</div>
                           </div>
-                          <Btn variant="primary" size="sm" icon="refresh">Renovar Plano Agora</Btn>
+                          <Btn variant="primary" size="sm" icon="zap" onClick={() => handleStripeCheckout("price_pro_mensal")} disabled={checkoutLoading}>
+                            {checkoutLoading ? "Carregando..." : "Assinar Agora"}
+                          </Btn>
                         </div>
                       )}
 
@@ -974,16 +1031,16 @@ const Settings = () => {
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Espaço em Disco</div>
                           <div style={{ width: "100%", height: 6, background: "var(--border)", borderRadius: 3, marginBottom: 6 }}>
-                            <div style={{ width: "24%", height: "100%", background: "var(--primary)", borderRadius: 3 }} />
+                            <div style={{ width: "12%", height: "100%", background: "var(--primary)", borderRadius: 3 }} />
                           </div>
-                          <div style={{ fontSize: 12, fontWeight: 700 }}>2.4 GB / 10 GB</div>
+                          <div style={{ fontSize: 12, fontWeight: 700 }}>0.2 GB / 10 GB</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Profissionais</div>
                           <div style={{ width: "100%", height: 6, background: "var(--border)", borderRadius: 3, marginBottom: 6 }}>
-                            <div style={{ width: "50%", height: "100%", background: "var(--success)", borderRadius: 3 }} />
+                            <div style={{ width: `${(profList.length / 10) * 100}%`, height: "100%", background: "var(--success)", borderRadius: 3 }} />
                           </div>
-                          <div style={{ fontSize: 12, fontWeight: 700 }}>5 / 10 ativos</div>
+                          <div style={{ fontSize: 12, fontWeight: 700 }}>{profList.length} / 10 ativos</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Agendamentos</div>
@@ -1004,18 +1061,18 @@ const Settings = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {[
-                            { data: "15 Abr 2026", valor: "R$ 149,90", status: "Pago" },
-                            { data: "15 Mar 2026", valor: "R$ 149,90", status: "Pago" },
-                            { data: "15 Fev 2026", valor: "R$ 149,90", status: "Pago" },
-                          ].map((f, i) => (
-                            <tr key={i} style={{ borderTop: "1px solid var(--border)" }}>
-                              <td style={{ padding: "12px 16px", fontSize: 13 }}>{f.data}</td>
-                              <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700 }}>{f.valor}</td>
-                              <td style={{ padding: "12px 16px" }}><Badge variant="success">{f.status}</Badge></td>
+                          {isActive ? (
+                            <tr style={{ borderTop: "1px solid var(--border)" }}>
+                              <td style={{ padding: "12px 16px", fontSize: 13 }}>Hoje</td>
+                              <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 700 }}>R$ 149,90</td>
+                              <td style={{ padding: "12px 16px" }}><Badge variant="success">Pago</Badge></td>
                               <td style={{ padding: "12px 16px", textAlign: "right" }}><Btn variant="ghost" size="sm" icon="download" /></td>
                             </tr>
-                          ))}
+                          ) : (
+                            <tr>
+                              <td colSpan={4} style={{ padding: "32px", textAlign: "center", color: "var(--muted2)", fontSize: 13 }}>Nenhum pagamento registrado</td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </Card>
@@ -1025,13 +1082,15 @@ const Settings = () => {
                     <Card style={{ padding: 20 }}>
                       <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Método de Pagamento</h4>
                       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px", background: "var(--surface2)", borderRadius: 8, border: "1px solid var(--border)", marginBottom: 16 }}>
-                        <Icon name="credit-card" size={20} color="var(--primary)" />
+                        <Icon name="credit-card" size={20} color={isActive ? "var(--primary)" : "var(--muted2)"} />
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>•••• •••• •••• 4242</div>
-                          <div style={{ fontSize: 11, color: "var(--muted)" }}>Cartão de Crédito (Visa)</div>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>{isActive ? "•••• •••• •••• 4242" : "Nenhum cartão"}</div>
+                          <div style={{ fontSize: 11, color: "var(--muted)" }}>{isActive ? "Cartão de Crédito (Visa)" : "Cadastre para assinar"}</div>
                         </div>
                       </div>
-                      <Btn variant="secondary" size="sm" style={{ width: "100%" }}>Atualizar Cartão</Btn>
+                      <Btn variant="secondary" size="sm" style={{ width: "100%" }} onClick={handleStripePortal} disabled={checkoutLoading || !shopInfo?.stripe_customer_id}>
+                        {checkoutLoading ? "Carregando..." : isActive ? "Gerenciar Pagamento" : "Adicionar Cartão"}
+                      </Btn>
                     </Card>
 
                     <Card style={{ padding: 20 }}>

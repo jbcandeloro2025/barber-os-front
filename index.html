@@ -3,41 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BarberOS - Selecione o Painel</title>
+    <title>BarberOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0F1115;
+            --text: #FFFFFF;
+            --primary: #C5A47E;
+            --surface: #1A1D24;
+            --border: #2A2F3A;
+            --muted: #A1A7B3;
+        }
         body {
-            background: #0F1115;
-            color: #FFFFFF;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
+            font-family: 'Inter', sans-serif;
         }
-        h1 { margin-bottom: 2rem; color: #C5A47E; }
-        .links { display: flex; gap: 2rem; }
-        a {
-            padding: 1rem 2rem;
-            background: #1A1D24;
-            color: #FFFFFF;
-            text-decoration: none;
-            border-radius: 8px;
-            border: 1px solid #2A2F3A;
-            transition: all 0.3s;
-        }
-        a:hover {
-            background: #C5A47E;
-            color: #000;
-        }
+        #root { min-height: 100vh; }
     </style>
 </head>
 <body>
-    <h1>BarberOS</h1>
-    <div class="links">
-        <a href="admin.html">Painel Admin</a>
-        <a href="booking.html">Agendamento</a>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/index.jsx"></script>
 </body>
 </html>

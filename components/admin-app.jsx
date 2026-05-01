@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import '../admin.css';
 
 // Login Screen
 const LoginScreen = ({ onLogin }) => {
@@ -242,7 +245,8 @@ const AdminApp = () => {
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)}/>;
 
   return (
-    <>
+    <div className="admin-page">
+      <>
       <style>{`
         .nav-item:hover { background: ${navHoverBg} !important; }
         .nav-item.active { background: ${navActiveBg} !important; }
@@ -429,8 +433,9 @@ const AdminApp = () => {
       </TweaksPanel>
       {/* Notifications Drawer */}
       {notificationsOpen && <NotificationsCenter onClose={() => setNotificationsOpen(false)} />}
-    </>
+      </>
+    </div>
   );
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(<AdminApp/>);
+export default AdminApp;
