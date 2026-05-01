@@ -595,8 +595,11 @@ const Settings = () => {
                         <p style={{ fontSize: 12, color: "var(--muted)" }}>Envio automático de lembretes e confirmações</p>
                       </div>
                     </div>
-                    <Badge variant={wppStatus.connected ? "success" : "danger"}>
-                      {wppStatus.loading ? "Consultando..." : wppStatus.message}
+                    <Badge 
+                      variant={wppStatus.connected ? "success" : "danger"} 
+                      style={{ minWidth: 80, textAlign: "center" }}
+                    >
+                      {wppStatus.loading ? "Verificando..." : wppStatus.message || "Desconectado"}
                     </Badge>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
