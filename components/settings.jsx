@@ -12,6 +12,7 @@ const Settings = () => {
   const [crudError, setCrudError] = React.useState(null);
   const [shopInfo, setShopInfo] = React.useState(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
+  const [wppStatus, setWppStatus] = React.useState({ loading: false, connected: false, message: "Consultando..." });
   const [form, setForm] = React.useState({
     nome:"",
     slug:"",
@@ -68,6 +69,7 @@ const Settings = () => {
         if (s.config) {
           setBookingForm(prev => ({ ...prev, ...s.config }));
           if (s.config.integracoes) setIntegracoes(prev => ({ ...prev, ...s.config.integracoes }));
+          if (s.config.integracoes?.whatsapp?.instance) handleCheckWppStatus();
           if (Array.isArray(s.config.operating_days)) setDiasAtivos(s.config.operating_days);
           if (Array.isArray(s.config.operating_hours)) {
             setHorasAbertura(s.config.operating_hours.map(h => h.open || "09:00"));
@@ -149,6 +151,28 @@ const Settings = () => {
       alert(e.message || "Erro ao abrir portal de faturamento");
     } finally {
       setCheckoutLoading(false);
+    }
+  };
+
+  const handleCheckWppStatus = async () => {
+    setWppStatus(prev => ({ ...prev, loading: true }));
+    try {
+      const data = await apiFetch("/whatsapp/status");
+      setWppStatus({ loading: false, connected: data.connected, message: data.message });
+    } catch (e) {
+      setWppStatus({ loading: false, connected: false, message: "Erro na conexão" });
+    }
+  };
+
+  const handleWppLogout = async () => {
+    if (!confirm("Deseja realmente desconectar o WhatsApp?")) return;
+    setWppStatus(prev => ({ ...prev, loading: true }));
+    try {
+      await apiFetch("/whatsapp/logout", { method: "POST" });
+      handleCheckWppStatus();
+    } catch (e) {
+      alert("Erro ao desconectar");
+      setWppStatus(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -571,21 +595,41 @@ const Settings = () => {
                         <p style={{ fontSize: 12, color: "var(--muted)" }}>Envio automático de lembretes e confirmações</p>
                       </div>
                     </div>
-                    <Badge variant="success">Conectado</Badge>
+                    <Badge variant={wppStatus.connected ? "success" : "danger"}>
+                      {wppStatus.loading ? "Consultando..." : wppStatus.message}
+                    </Badge>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted2)", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Instância</label>
-                      <Input value={integracoes.evo_instancia} onChange={e => setInt("evo_instancia", e.target.value)} placeholder="Nome da instância" />
+                      <Input value={integracoes.whatsapp?.instance || ""} onChange={e => setIntegracoes({ ...integracoes, whatsapp: { ...integracoes.whatsapp, instance: e.target.value } })} placeholder="Nome da instância" />
                     </div>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted2)", textTransform: "uppercase", display: "block", marginBottom: 6 }}>API Token</label>
-                      <Input value={integracoes.evo_token} onChange={e => setInt("evo_token", e.target.value)} type="password" placeholder="Token de acesso" />
+                      <Input value={integracoes.whatsapp?.token || ""} onChange={e => setIntegracoes({ ...integracoes, whatsapp: { ...integracoes.whatsapp, token: e.target.value } })} type="password" placeholder="Token de acesso" />
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <Btn variant="secondary" size="sm" icon="refresh">Testar Conexão</Btn>
-                    <Btn variant="ghost" size="sm" style={{ color: "#EF4444" }}>Desconectar</Btn>
+                    <Btn 
+                      variant="secondary" 
+                      size="sm" 
+                      icon={wppStatus.loading ? "refresh" : "zap"} 
+                      onClick={handleCheckWppStatus}
+                      disabled={wppStatus.loading || !integracoes.whatsapp?.instance}
+                    >
+                      {wppStatus.loading ? "Testando..." : "Testar Conexão"}
+                    </Btn>
+                    {wppStatus.connected && (
+                      <Btn 
+                        variant="ghost" 
+                        size="sm" 
+                        style={{ color: "#EF4444" }} 
+                        onClick={handleWppLogout}
+                        disabled={wppStatus.loading}
+                      >
+                        Desconectar
+                      </Btn>
+                    )}
                   </div>
                 </Card>
 
