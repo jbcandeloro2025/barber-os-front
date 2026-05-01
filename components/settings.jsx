@@ -67,6 +67,7 @@ const Settings = () => {
         });
         if (s.config) {
           setBookingForm(prev => ({ ...prev, ...s.config }));
+          if (s.config.integracoes) setIntegracoes(prev => ({ ...prev, ...s.config.integracoes }));
           if (Array.isArray(s.config.operating_days)) setDiasAtivos(s.config.operating_days);
           if (Array.isArray(s.config.operating_hours)) {
             setHorasAbertura(s.config.operating_hours.map(h => h.open || "09:00"));
@@ -93,6 +94,7 @@ const Settings = () => {
             operating_days: diasAtivos,
             operating_hours: diasSemana.map((_, i) => ({ open: horasAbertura[i], close: horasFechamento[i] })),
             ...bookingForm,
+            integracoes,
           },
         }),
       });
