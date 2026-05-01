@@ -1,7 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-window.React = React;
-window.ReactDOM = ReactDOM;
+import './init-globals.js';
 
 import './components/api.jsx';
 import './components/mock-data.jsx';
