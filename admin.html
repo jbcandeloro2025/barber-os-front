@@ -4,10 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BarberOS — Admin</title>
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,64 +33,19 @@
     overflow: hidden;
     transition: background 0.25s, color 0.25s;
   }
-
-  /* Theme transitions */
-  *, *::before, *::after {
-    transition: background-color 0.2s, border-color 0.2s, color 0.15s, box-shadow 0.2s;
-  }
-  /* Exclude transitions that cause jank */
-  svg, svg *, canvas { transition: none !important; }
-  button { transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s !important; }
-
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
-
   input, select, textarea {
     font-family: inherit;
     background: var(--input-bg);
     color: var(--text);
     border-color: var(--border);
   }
-
-  /* Light mode card elevation */
-  [data-theme="light"] .card-el {
-    box-shadow: var(--card-shadow);
-  }
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    html { font-size: 14px; }
-    h1 { font-size: 1.6rem !important; }
-    h2 { font-size: 1.3rem !important; }
-    .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; z-index: 1000; width: 280px !important; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .sidebar.open { transform: translateX(280px); }
-    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(4px); }
-    .sidebar-overlay.open { display: block; }
-    .main-content { margin-left: 0 !important; width: 100% !important; overflow-x: hidden; }
-    .mobile-header { display: flex !important; }
-    .hide-mobile { display: none !important; }
-    .grid-responsive { grid-template-columns: 1fr !important; }
-    .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
-    .table-container::-webkit-scrollbar { height: 4px; }
-    .table-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  }
 </style>
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel" src="components/api.jsx"></script>
-<script type="text/babel" src="components/mock-data.jsx"></script>
-<script type="text/babel" src="components/ui-primitives.jsx"></script>
-<script type="text/babel" src="components/dashboard.jsx"></script>
-<script type="text/babel" src="components/agenda.jsx"></script>
-<script type="text/babel" src="components/crm.jsx"></script>
-<script type="text/babel" src="components/checkout.jsx"></script>
-<script type="text/babel" src="components/settings.jsx"></script>
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel" src="components/inventory.jsx"></script>
-<script type="text/babel" src="components/finance.jsx"></script>
-<script type="text/babel" src="components/reports.jsx"></script>
-<script type="text/babel" src="components/notifications.jsx"></script>
-<script type="text/babel" src="components/admin-app.jsx"></script>
+<script type="module" src="/admin-entry.jsx"></script>
 </body>
 </html>
