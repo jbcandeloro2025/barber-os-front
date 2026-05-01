@@ -1,6 +1,6 @@
 
 // Central API helper
-const API_BASE = "http://localhost:3333";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3333";
 
 const PROF_COLORS = ["#C5A47E","#3B82F6","#8B5CF6","#10B981","#F59E0B","#EF4444","#EC4899","#06B6D4"];
 
