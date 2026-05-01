@@ -8,6 +8,7 @@ const Settings = () => {
   const [novoSrvOpen, setNovoSrvOpen] = React.useState(false);
   const [novoProfOpen, setNovoProfOpen] = React.useState(false);
   const [novoPlanOpen, setNovoPlanOpen] = React.useState(false);
+  const [crudSaving, setCrudSaving] = React.useState(false);
   const [crudError, setCrudError] = React.useState(null);
   const [shopInfo, setShopInfo] = React.useState(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
