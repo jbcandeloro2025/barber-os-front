@@ -13,6 +13,7 @@ const Settings = () => {
   const [shopInfo, setShopInfo] = React.useState(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
   const [wppStatus, setWppStatus] = React.useState({ loading: false, connected: false, message: "Consultando..." });
+  const [testNumber, setTestNumber] = React.useState("");
   const [form, setForm] = React.useState({
     nome:"",
     slug:"",
@@ -172,6 +173,22 @@ const Settings = () => {
       handleCheckWppStatus();
     } catch (e) {
       alert("Erro ao desconectar");
+      setWppStatus(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleSendTest = async () => {
+    if (!testNumber) return alert("Informe um número para teste");
+    setWppStatus(prev => ({ ...prev, loading: true }));
+    try {
+      const data = await apiFetch("/whatsapp/send-test", {
+        method: "POST",
+        body: JSON.stringify({ number: testNumber, message: "🚀 Teste de conexão BarberOS: Integrado com sucesso!" })
+      });
+      alert(data.message);
+    } catch (e) {
+      alert("Falha ao enviar: " + e.message);
+    } finally {
       setWppStatus(prev => ({ ...prev, loading: false }));
     }
   };
@@ -602,6 +619,16 @@ const Settings = () => {
                       {wppStatus.loading ? "Verificando..." : wppStatus.message || "Desconectado"}
                     </Badge>
                   </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16, marginBottom: 16 }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--muted2)", marginBottom: 6, textTransform: "uppercase" }}>URL da API (Evolution)</label>
+                      <Input 
+                        placeholder="Ex: https://api.seuservidor.com" 
+                        value={integracoes.whatsapp?.url || ""} 
+                        onChange={e => setIntegracoes({ ...integracoes, whatsapp: { ...integracoes.whatsapp, url: e.target.value } })}
+                      />
+                    </div>
+                  </div>
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted2)", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Instância</label>
@@ -612,7 +639,8 @@ const Settings = () => {
                       <Input value={integracoes.whatsapp?.token || ""} onChange={e => setIntegracoes({ ...integracoes, whatsapp: { ...integracoes.whatsapp, token: e.target.value } })} type="password" placeholder="Token de acesso" />
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 10 }}>
+
+                  <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
                     <Btn 
                       variant="secondary" 
                       size="sm" 
@@ -633,6 +661,34 @@ const Settings = () => {
                         Desconectar
                       </Btn>
                     )}
+                  </div>
+
+                  <Divider style={{ margin: "24px 0" }} />
+
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: "var(--muted2)", textTransform: "uppercase" }}>Ferramenta de Teste</h4>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <Input 
+                          placeholder="Número com DDD (ex: 5511999999999)" 
+                          value={testNumber} 
+                          onChange={e => setTestNumber(e.target.value)} 
+                          icon="whatsapp"
+                        />
+                      </div>
+                      <Btn 
+                        variant="primary" 
+                        size="sm" 
+                        icon="send" 
+                        onClick={handleSendTest}
+                        disabled={wppStatus.loading || !testNumber}
+                      >
+                        Enviar Teste
+                      </Btn>
+                    </div>
+                    <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 8 }}>
+                      Clique primeiro em <b>Salvar Alterações</b> antes de enviar o teste se você mudou os dados acima.
+                    </p>
                   </div>
                 </Card>
 
