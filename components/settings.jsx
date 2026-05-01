@@ -981,11 +981,11 @@ const Settings = () => {
             </div>
           )}
 
+          {tab === "assinatura" && (() => {
             const nextBilling = new Date();
             nextBilling.setMonth(nextBilling.getMonth() + 1);
             
             const status = shopInfo?.subscription_status || "TRIALING";
-            const isCanceled = status === "CANCELED";
             const isTrial = status === "TRIALING";
             const isActive = status === "ACTIVE";
 
