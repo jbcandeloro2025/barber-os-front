@@ -23,12 +23,12 @@ const MainApp = () => {
     return <BookingApp slug={subdomain} />;
   }
 
-  // barberos.jbcode.cloud → painel admin
+  // barberos.jbcode.cloud → painel admin direto
   if (subdomain === 'barberos') {
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Splash />} />
+          <Route path="/" element={<AdminApp />} />
           <Route path="/admin/*" element={<AdminApp />} />
           <Route path="/shops/register" element={<RegisterShop />} />
         </Routes>
