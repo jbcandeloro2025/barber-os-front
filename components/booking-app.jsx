@@ -161,7 +161,6 @@ const LoginScreen = ({onLogin}) => {
 
   const handle = async () => {
     if (!valid) { setErr('Digite um celular válido'); return; }
-    if (!SHOP_ID) { setErr('Link de agendamento inválido. Use ?shop=ID'); return; }
     setErr(''); setLoading(true);
     try {
       const { client } = await bookingFetch('/identify', { method: 'POST', body: { phone: digits } });
