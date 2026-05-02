@@ -1112,24 +1112,44 @@ const Settings = () => {
                             </Badge>
                             {isActive && <span style={{ fontSize: 12, color: "var(--success)", fontWeight: 700 }}>● Pagamento em dia</span>}
                           </div>
-                          <h3 style={{ fontSize: 24, fontWeight: 800 }}>BarberOS Pro</h3>
+                          <h3 style={{ fontSize: 24, fontWeight: 800 }}>{isActive ? "Seu Plano Atual" : "Escolha seu Plano"}</h3>
                           <p style={{ color: "var(--muted)", fontSize: 14 }}>Ciclo de faturamento mensal</p>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)" }}>R$ 149,90</div>
-                          <div style={{ fontSize: 12, color: "var(--muted)" }}>{isActive ? `Próxima fatura: ${nextBilling.toLocaleDateString('pt-BR')}` : "Plano mensal padrão"}</div>
                         </div>
                       </div>
 
-                      {(!isActive || isTrial) && (
-                        <div style={{ marginBottom: 24, padding: 16, background: "rgba(197,164,126,0.1)", borderRadius: 10, border: "1px solid rgba(197,164,126,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--primary)" }}>{isTrial ? "Seu período de teste está ativo!" : "Sua assinatura não está ativa."}</div>
-                            <div style={{ fontSize: 11, color: "var(--muted)" }}>Profissionalize sua gestão com o plano Pro completo.</div>
+                      {(!isActive || isTrial) ? (
+                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 24 }}>
+                          {/* Plano Básico */}
+                          <div style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 12 }}>
+                            <div>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>Plano Básico</div>
+                              <div style={{ fontSize: 18, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>R$ 79,90<span style={{ fontSize: 12, color: "var(--muted)" }}>/mês</span></div>
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>Ideal para barbeiros individuais. Agendamentos ilimitados.</div>
+                            <Btn variant="outline" size="sm" onClick={() => handleStripeCheckout("price_1TSSzmF4w2NhB5nfhL4J0lv4")} disabled={checkoutLoading} style={{ width: "100%" }}>
+                              {checkoutLoading ? "..." : "Assinar Básico"}
+                            </Btn>
                           </div>
-                          <Btn variant="primary" size="sm" icon="zap" onClick={() => handleStripeCheckout("price_pro_mensal")} disabled={checkoutLoading}>
-                            {checkoutLoading ? "Carregando..." : "Assinar Agora"}
-                          </Btn>
+                          
+                          {/* Plano Pro */}
+                          <div style={{ padding: 16, background: "rgba(197,164,126,0.1)", borderRadius: 12, border: "1px solid var(--primary)33", display: "flex", flexDirection: "column", gap: 12 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>Plano Pro</div>
+                              <Badge variant="success" style={{ fontSize: 9 }}>TOP</Badge>
+                            </div>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>R$ 149,90<span style={{ fontSize: 12, color: "var(--muted)" }}>/mês</span></div>
+                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>WhatsApp Ilimitado e Equipe. A gestão completa de elite.</div>
+                            <Btn variant="primary" size="sm" onClick={() => handleStripeCheckout("price_1TSSzmF4w2NhB5nfhL4J0lv4")} disabled={checkoutLoading} style={{ width: "100%" }}>
+                              {checkoutLoading ? "..." : "Assinar Pro"}
+                            </Btn>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ marginBottom: 24, padding: 16, background: "rgba(16,185,129,0.05)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--success)" }}>Sua assinatura está ativa e configurada!</div>
+                            <div style={{ fontSize: 11, color: "var(--muted)" }}>Obrigado por confiar no BarberOS para o seu negócio.</div>
+                          </div>
                         </div>
                       )}
 
