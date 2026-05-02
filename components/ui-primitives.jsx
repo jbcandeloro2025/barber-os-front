@@ -99,6 +99,7 @@ const Btn = ({ children, variant="primary", size="md", onClick, disabled, style=
   const variants = {
     primary: { bg:"#C5A47E", color:"#0F1115", hover:"#D4B494" },
     secondary: { bg:"var(--surface2)", color:"var(--text)", hover:"#2A2F3A" },
+    outline: { bg:"transparent", color:"var(--primary)", hover:"rgba(197,164,126,0.1)", border:"1px solid var(--primary)" },
     ghost: { bg:"transparent", color:"var(--muted)", hover:"rgba(255,255,255,0.05)" },
     success: { bg:"#10B981", color:"#fff", hover:"#0ea572" },
     danger: { bg:"rgba(239,68,68,0.15)", color:"#EF4444", hover:"rgba(239,68,68,0.25)" },
@@ -110,7 +111,7 @@ const Btn = ({ children, variant="primary", size="md", onClick, disabled, style=
   return (
     <button onClick={onClick} disabled={disabled}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, padding:sizes[size], borderRadius:8, border:"none",
+      style={{ display:"inline-flex", alignItems:"center", gap:6, padding:sizes[size], borderRadius:8, border: v.border || "none",
         background: hovered ? v.hover : v.bg, color: v.color, fontSize:fontSizes[size], fontWeight:600, fontFamily:"inherit",
         cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1, transition:"all 0.15s", ...style }}>
       {icon && <Icon name={icon} size={14} color={v.color}/>}
