@@ -1106,18 +1106,12 @@ const Settings = () => {
                       
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
                         <div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                            <Badge variant={isActive ? "success" : isTrial ? "warning" : "danger"}>
-                              {isActive ? "Plano Ativo" : isTrial ? "Período de Teste" : "Assinatura Suspensa"}
-                            </Badge>
-                            {isActive && <span style={{ fontSize: 12, color: "var(--success)", fontWeight: 700 }}>● Pagamento em dia</span>}
-                          </div>
-                          <h3 style={{ fontSize: 24, fontWeight: 800 }}>{isActive ? "Seu Plano Atual" : "Escolha seu Plano"}</h3>
-                          <p style={{ color: "var(--muted)", fontSize: 14 }}>Ciclo de faturamento mensal</p>
+                          <h3 style={{ fontSize: 24, fontWeight: 800 }}>{isActive ? "BarberOS Pro" : isTrial ? "Período de Teste" : "Assinatura Suspensa"}</h3>
+                          <p style={{ color: "var(--muted)", fontSize: 14 }}>{isActive ? "Sua assinatura está ativa e configurada" : "Escolha um plano para continuar"}</p>
                         </div>
                       </div>
 
-                      {(!isActive || isTrial) ? (
+                      {(!isActive || isTrial) && (
                         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 24 }}>
                           {/* Plano Básico */}
                           <div style={{ padding: 16, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 12 }}>
@@ -1125,7 +1119,7 @@ const Settings = () => {
                               <div style={{ fontSize: 14, fontWeight: 700 }}>Plano Básico</div>
                               <div style={{ fontSize: 18, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>R$ 79,90<span style={{ fontSize: 12, color: "var(--muted)" }}>/mês</span></div>
                             </div>
-                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>Ideal para barbeiros individuais. Agendamentos ilimitados.</div>
+                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>Ideal para barbeiros individuais.</div>
                             <Btn variant="outline" size="sm" onClick={() => handleStripeCheckout("price_1TSSzmF4w2NhB5nfhL4J0lv4")} disabled={checkoutLoading} style={{ width: "100%" }}>
                               {checkoutLoading ? "..." : "Assinar Básico"}
                             </Btn>
@@ -1138,28 +1132,21 @@ const Settings = () => {
                               <Badge variant="success" style={{ fontSize: 9 }}>TOP</Badge>
                             </div>
                             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>R$ 149,90<span style={{ fontSize: 12, color: "var(--muted)" }}>/mês</span></div>
-                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>WhatsApp Ilimitado e Equipe. A gestão completa de elite.</div>
+                            <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>WhatsApp Ilimitado e Equipe.</div>
                             <Btn variant="primary" size="sm" onClick={() => handleStripeCheckout("price_1TSSzmF4w2NhB5nfhL4J0lv4")} disabled={checkoutLoading} style={{ width: "100%" }}>
                               {checkoutLoading ? "..." : "Assinar Pro"}
                             </Btn>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ marginBottom: 24, padding: 16, background: "rgba(16,185,129,0.05)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--success)" }}>Sua assinatura está ativa e configurada!</div>
-                            <div style={{ fontSize: 11, color: "var(--muted)" }}>Obrigado por confiar no BarberOS para o seu negócio.</div>
                           </div>
                         </div>
                       )}
 
                       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 24, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
                         <div>
-                          <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Espaço em Disco</div>
+                          <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Tempo Restante</div>
                           <div style={{ width: "100%", height: 6, background: "var(--border)", borderRadius: 3, marginBottom: 6 }}>
-                            <div style={{ width: "12%", height: "100%", background: "var(--primary)", borderRadius: 3 }} />
+                            <div style={{ width: "70%", height: "100%", background: "var(--primary)", borderRadius: 3 }} />
                           </div>
-                          <div style={{ fontSize: 12, fontWeight: 700 }}>0.2 GB / 10 GB</div>
+                          <div style={{ fontSize: 12, fontWeight: 700 }}>Vence em 3 dias</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 10, color: "var(--muted2)", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>Profissionais</div>
@@ -1206,29 +1193,36 @@ const Settings = () => {
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                     <Card style={{ padding: 20 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Método de Pagamento</h4>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px", background: "var(--surface2)", borderRadius: 8, border: "1px solid var(--border)", marginBottom: 16 }}>
-                        <Icon name="credit-card" size={20} color={isActive ? "var(--primary)" : "var(--muted2)"} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>{isActive ? "•••• •••• •••• 4242" : "Nenhum cartão"}</div>
-                          <div style={{ fontSize: 11, color: "var(--muted)" }}>{isActive ? "Cartão de Crédito (Visa)" : "Cadastre para assinar"}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <Badge variant={isActive ? "success" : isTrial ? "warning" : "danger"}>
+                          {isActive ? "Plano Ativo" : isTrial ? "Período de Teste" : "Assinatura Suspensa"}
+                        </Badge>
+                      </div>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--success)", fontWeight: 600 }}>
+                          <Icon name="check-circle" size={14} />
+                          Pagamento em dia
+                        </div>
+                        <div style={{ fontSize: 13, color: "var(--text)" }}>
+                          <div style={{ fontWeight: 700, color: "#F59E0B" }}>Vence em 3 dias</div>
+                          <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Próxima fatura: 04/05/2026</div>
                         </div>
                       </div>
-                      <Btn variant="secondary" size="sm" style={{ width: "100%" }} onClick={handleStripePortal} disabled={checkoutLoading || !shopInfo?.stripe_customer_id}>
-                        {checkoutLoading ? "Carregando..." : isActive ? "Gerenciar Pagamento" : "Adicionar Cartão"}
-                      </Btn>
-                    </Card>
 
-                    <Card style={{ padding: 20 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Suporte Prioritário</h4>
-                      <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 16, lineHeight: 1.5 }}>Como assinante Pro, você tem acesso ao suporte via WhatsApp 24/7.</p>
-                      <Btn variant="secondary" size="sm" icon="whatsapp" style={{ width: "100%" }}>Falar com Suporte</Btn>
-                    </Card>
-
-                    <Card style={{ padding: 20, background: "rgba(239,68,68,0.02)" }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#EF4444" }}>Zona de Perigo</h4>
-                      <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 16 }}>Ao cancelar, sua barbearia ficará offline após o período pago.</p>
-                      <button style={{ width: "100%", padding: "8px", background: "none", border: "1px solid #EF444444", borderRadius: 8, color: "#EF4444", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Cancelar Assinatura</button>
+                      <Divider style={{ margin: "16px 0" }} />
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <Btn variant="ghost" size="sm" icon="message-square" style={{ width: "100%", justifyContent: "flex-start" }}>
+                          Suporte Prioritário
+                        </Btn>
+                        <Btn variant="ghost" size="sm" icon="credit-card" style={{ width: "100%", justifyContent: "flex-start" }} onClick={handleStripePortal} disabled={checkoutLoading || !shopInfo?.stripe_customer_id}>
+                          Gerenciar Pagamento
+                        </Btn>
+                        <Btn variant="ghost" size="sm" icon="trash-2" style={{ width: "100%", justifyContent: "flex-start", color: "#EF4444" }} onClick={handleStripePortal}>
+                          Cancelar Assinatura
+                        </Btn>
+                      </div>
                     </Card>
                   </div>
                 </div>
