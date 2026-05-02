@@ -8,12 +8,15 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 /* ─── API ───────────────────────────────────────────────────── */
 const API_BASE = import.meta.env.VITE_API_URL || "https://saas-saas.xvpbl8.easypanel.host";
-// Shop ID — em produção viria de um subdomínio ou query param
+// Shop slug — lê do subdomínio (meubarber.jbcode.cloud) ou fallback para path/query
 const getShopId = () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("shop")) return params.get("shop");
+  const parts = window.location.hostname.split('.');
+  if (parts.length >= 3 && parts[0] !== 'barberos' && parts[0] !== 'www') {
+    return parts[0];
+  }
   const pathParts = window.location.pathname.split('/');
-  // Se for /admin ou outros caminhos conhecidos, ignorar
   if (pathParts[1] === "admin" || !pathParts[1]) return "";
   return pathParts[1];
 };
