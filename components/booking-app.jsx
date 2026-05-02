@@ -8,22 +8,33 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 /* ─── API ───────────────────────────────────────────────────── */
 const API_BASE = import.meta.env.VITE_API_URL || "https://saas-saas.xvpbl8.easypanel.host";
-// Shop slug — lê do subdomínio (meubarber.jbcode.cloud) ou fallback para path/query
-const getShopId = () => {
+
+const getShopSlug = () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("shop")) return params.get("shop");
   const parts = window.location.hostname.split('.');
-  if (parts.length >= 3 && parts[0] !== 'barberos' && parts[0] !== 'www') {
-    return parts[0];
-  }
+  if (parts.length >= 3 && parts[0] !== 'barberos' && parts[0] !== 'www') return parts[0];
   const pathParts = window.location.pathname.split('/');
   if (pathParts[1] === "admin" || !pathParts[1]) return "";
   return pathParts[1];
 };
-const SHOP_ID = getShopId();
+const SHOP_SLUG = getShopSlug();
+
+// Resolve slug → UUID na primeira carga
+let SHOP_ID = null;
+
+async function resolveShop() {
+  if (SHOP_ID) return SHOP_ID;
+  const res = await fetch(`${API_BASE}/booking/resolve/${SHOP_SLUG}`, { credentials: 'include' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Shop não encontrado');
+  SHOP_ID = data.shop.id;
+  return SHOP_ID;
+}
 
 async function bookingFetch(path, options = {}) {
-  const res = await fetch(`${API_BASE}/booking/${SHOP_ID}${path}`, {
+  const shopId = await resolveShop();
+  const res = await fetch(`${API_BASE}/booking/${shopId}${path}`, {
     ...options,
     credentials: 'include',
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
