@@ -349,7 +349,7 @@ const Settings = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 {[
                   { k: "nome", label: "Nome do Estabelecimento", placeholder: "Ex: Barbearia Studio Rafael" },
-                  { k: "slug", label: "Slug de Agendamento", placeholder: "minha-barbearia", prefix: (import.meta.env.VITE_BOOKING_BASE_URL || "barberos.app").replace(/^https?:\/\//, "") + "/" },
+                  { k: "slug", label: "Slug de Agendamento", placeholder: "minha-barbearia", prefix: null },
                   { k: "whatsapp", label: "WhatsApp", placeholder: "(11) 99999-9999" },
                   { k: "endereco", label: "Endereço completo", placeholder: "Rua, número — Bairro, Cidade" },
                 ].map(({ k, label, placeholder, prefix }) => (
@@ -374,11 +374,11 @@ const Settings = () => {
                       <div style={{ marginTop: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
                         <Icon name="external-link" size={12} color="#C5A47E" />
                         <span style={{ color: "var(--muted)" }}>Link para clientes: </span>
-                        <a href={`${import.meta.env.VITE_BOOKING_BASE_URL || "https://barberos.app"}/${form.slug}`} target="_blank" rel="noreferrer" 
+                        <a href={`https://${form.slug}.${(import.meta.env.VITE_BOOKING_DOMAIN || "jbcode.cloud")}`} target="_blank" rel="noreferrer"
                           style={{ color: "#C5A47E", fontWeight: 700, textDecoration: "none", borderBottom: "1px solid transparent" }}
                           onMouseEnter={e => e.target.style.borderBottomColor = "#C5A47E" }
                           onMouseLeave={e => e.target.style.borderBottomColor = "transparent" }>
-                          {(import.meta.env.VITE_BOOKING_BASE_URL || "barberos.app").replace(/^https?:\/\//, "")}/{form.slug}
+                          {form.slug}.{import.meta.env.VITE_BOOKING_DOMAIN || "jbcode.cloud"}
                         </a>
                       </div>
                     )}
