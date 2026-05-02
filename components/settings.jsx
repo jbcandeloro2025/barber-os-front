@@ -1133,7 +1133,7 @@ const Settings = () => {
                             </div>
                             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>R$ 149,90<span style={{ fontSize: 12, color: "var(--muted)" }}>/mês</span></div>
                             <div style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>WhatsApp Ilimitado e Equipe.</div>
-                            <Btn variant="primary" size="sm" onClick={() => handleStripeCheckout("price_1TSSzmF4w2NhB5nfhL4J0lv4")} disabled={checkoutLoading} style={{ width: "100%" }}>
+                            <Btn variant="primary" size="sm" onClick={() => handleStripeCheckout("price_1TST0vF4w2NhB5nftPMgyBSR")} disabled={checkoutLoading} style={{ width: "100%" }}>
                               {checkoutLoading ? "..." : "Assinar Pro"}
                             </Btn>
                           </div>
